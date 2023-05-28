@@ -46,6 +46,51 @@
     </p>
 
     <div id="toy-collection"></div>
-    <script type="text/javascript" src="src/index.js"></script>
+    <script type="text/javascript" src="src/index.js">
+      fetch('https://localhost:3000/toys')
+       .then((resp) => resp.json())
+       .then((toys) => render(toys));
+
+      function render(toys) {
+        let toyCollection = document.getElementById('toy-collection');
+        toyCollection.innerHTML = ''
+
+        toys.forEach((toy, toyIndex) => {
+          let card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = ` 
+          <h2>${toy.name}</h2>
+          <img src=${toy.image} class="toy-avatar" ></img>
+          <p>Likes; ${toy.likes || 0} </p>
+          <button class="like-button" Like <3 </button>
+          <button class="delete-button" Delete :( </button>
+          `;
+          toyCollection.append(card);
+
+          let likeButton = card.querySelector('.like-button');
+          likeButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            toy.likes = parseInt(toy.likes) + 1;
+            fetch(`${'http://localhost:3000/toys'}/${toy.id}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(toy)
+            });
+            render(toys);
+          });
+
+          let deleteButton = card.querySelector('.delete-button'); 
+          deleteButton.addEventListener('click', (e) => {
+            toys.splice(toyIndex, 1);
+            fetch(`${URL}/${toy}`, {
+              method: 'DELETE'
+            });
+            render(toys);
+          });
+        })
+      }
+    </script>
   </body>
 </html>
